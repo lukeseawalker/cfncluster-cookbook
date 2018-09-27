@@ -38,7 +38,11 @@ bash 'make install' do
     tar xf #{munge_tarball}
     cd munge-munge-#{node['cfncluster']['munge']['munge_version']}
     ./bootstrap
-    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=#{munge_libdir}
+    if [ #{node['platform']} == "ubuntu" ] && [ #{node['platform_version']} == "18.04" ]; then
+      ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=#{munge_libdir} --with-crypto-lib=libgcrypt
+    else
+      ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=#{munge_libdir}
+    fi
     CORES=$(grep processor /proc/cpuinfo | wc -l)
     make -j $CORES
     make install

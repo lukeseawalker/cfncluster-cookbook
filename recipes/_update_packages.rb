@@ -18,7 +18,7 @@ package 'aws-cli' do
   ignore_failure true
 end
 
-if !(node['platform'] == 'ubuntu' && node['platform_version'] == "16.04")
+if !(node['platform'] == 'ubuntu' && (node['platform_version'] == "16.04" || node['platform_version'] == "18.04"))
   python_package 'awscli' do
     action :remove
     ignore_failure true

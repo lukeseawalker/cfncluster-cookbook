@@ -81,7 +81,7 @@ case ${os} in
       RC=$?
     done
     ;;
-  centos6|centos7|alinux|ubuntu1404|ubuntu1604)
+  centos6|centos7|alinux|ubuntu1404|ubuntu1604|ubuntu1804)
     packer build -machine-readable -var-file="${cwd}/packer_variables.json" "${cwd}/packer_${os}.json"
     RC=$?
     ;;

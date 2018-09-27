@@ -1,0 +1,193 @@
+{
+  "variables" : {
+    "cfncluster_version" : "",
+    "cfncluster_cookbook_version" : "",
+    "chef_version" : "",
+    "ridley_version" : "",
+    "berkshelf_version" : "",
+    "build_for" : "{{env `BUILD_FOR`}}",
+    "ami_perms" : "{{env `AMI_PERMS`}}",
+    "build_date" : "{{env `BUILD_DATE`}}",
+    "vendor_path" : "{{env `VENDOR_PATH`}}",
+    "nvidia_enabled" : "{{env `NVIDIA_ENABLED`}}",
+    "instance_type" : "{{env `AWS_FLAVOR_ID`}}",
+    "subnet_id" : "{{env `AWS_SUBNET_ID`}}",
+    "vpc_id" : "{{env `AWS_VPC_ID`}}",
+    "ami_name_prefix" : "{{env `AMI_NAME_PREFIX`}}",
+    "region" : "{{env `AWS_REGION`}}"
+  },
+  "builders" : [
+    {
+      "type" : "amazon-ebs",
+      "region" : "{{user `region`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["099720109477", "513442679011"],
+        "most_recent": true
+      },
+      "ami_regions" : "{{user `build_for`}}",
+      "ami_groups" : "{{user `ami_perms`}}",
+      "instance_type" : "{{user `instance_type`}}",
+      "ssh_username" : "ubuntu",
+      "ssh_pty" : true,
+      "ami_name" : "{{user `ami_name_prefix`}}cfncluster-{{user `cfncluster_version`}}-ubuntu-1804-lts-hvm-{{user `build_date`}}",
+      "subnet_id" : "{{user `subnet_id`}}",
+      "vpc_id" : "{{user `vpc_id`}}",
+      "skip_region_validation" : true,
+      "associate_public_ip_address" : true,
+      "sriov_support" : true,
+      "ena_support" : true,
+      "tags" : {
+        "cfncluster_version" : "cfncluster-{{user `cfncluster_version`}}",
+        "build_date" : "{{user `build_date`}}"
+      },
+      "run_tags" : {
+        "cfncluster_version" : "cfncluster-{{user `cfncluster_version`}}",
+        "build_date" : "{{user `build_date`}}"
+      },
+      "launch_block_device_mappings" : [
+        {
+          "device_name" : "/dev/sda1",
+          "volume_size" : "15",
+          "volume_type" : "gp2",
+          "delete_on_termination" : true
+        },
+        {
+          "device_name" : "/dev/sdb",
+          "no_device" : true
+        },
+        {
+          "device_name" : "/dev/sdc",
+          "no_device" : true
+        }
+      ],
+      "ami_block_device_mappings" : [
+        {
+          "device_name" : "/dev/sdb",
+          "no_device" : true
+        },
+        {
+          "device_name" : "/dev/sdc",
+          "no_device" : true
+        }
+      ]
+    }
+  ],
+  "provisioners" : [
+    {
+      "type": "shell",
+      "inline": [
+        "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done"
+      ]
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "sudo apt-cache search build-essential",
+        "sudo apt-get clean",
+        "sudo apt-get update"
+      ]
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "sudo apt-get -y install build-essential curl wget"
+      ]
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "sudo mkdir -p /etc/chef && sudo chown -R root:root /etc/chef"
+      ]
+    },
+    {
+      "type" : "file",
+      "source" : "{{user `vendor_path`}}",
+      "destination" : "/tmp/cookbooks"
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "sudo cp -pr /tmp/cookbooks /etc/chef && sudo chown -R root:root /etc/chef"
+      ]
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "curl -L https://www.chef.io/chef/install.sh | sudo bash -s -- -v {{user `chef_version`}}"
+      ]
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "sudo /opt/chef/embedded/bin/gem install --no-rdoc --no-ri ridley:{{user `ridley_version`}} berkshelf:{{user `berkshelf_version`}}"
+      ]
+    },
+    {
+      "type" : "chef-solo",
+      "remote_cookbook_paths" : [
+        "/etc/chef/cookbooks"
+      ],
+      "skip_install" : "true",
+      "execute_command" : "sudo chef-client -z --no-color -c {{.ConfigPath}} -j {{.JsonPath}}",
+      "json" : {
+        "cfncluster" : {
+          "default_pre_reboot" : "false"
+        }
+      },
+      "run_list" : [
+        "cfncluster::_default_pre"
+      ]
+    },
+    {
+      "type" : "shell",
+      "expect_disconnect" : "true",
+      "inline" : [
+        "sudo reboot"
+      ]
+    },
+    {
+      "type" : "chef-solo",
+      "pause_before": "2m",
+      "json" : {
+        "cfncluster" : {
+          "nvidia" : {
+            "enabled" : "{{user `nvidia_enabled`}}"
+          }
+        }
+      },
+      "remote_cookbook_paths" : [
+        "/etc/chef/cookbooks"
+      ],
+      "skip_install" : "true",
+      "execute_command" : "sudo chef-client -z --no-color -c {{.ConfigPath}} -j {{.JsonPath}}",
+      "run_list" : [
+        "cfncluster::default"
+      ]
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "wget -O /tmp/aws-cfn-bootstrap-latest.zip https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.zip",
+        "sudo pip install /tmp/aws-cfn-bootstrap-latest.zip"
+      ]
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "sudo curl https://s3.amazonaws.com/us-east-1-cfncluster/cookbooks/cfncluster-cookbook-{{user `cfncluster_cookbook_version`}}.tgz --silent --location -o /etc/chef/cfncluster-cookbook.tgz"
+      ]
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "sudo rm -rf /tmp/* /var/tmp/* && sudo rm -f /root/.ssh/authorized_keys && rm -f ~/.ssh/authorized_keys",
+        "echo cfncluster-{{user `cfncluster_version`}} | sudo tee /opt/cfncluster/.bootstrapped"
+      ]
+    }
+  ]
+}

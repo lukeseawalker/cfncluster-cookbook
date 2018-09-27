@@ -26,11 +26,11 @@ default['cfncluster']['cfncluster-supervisor-version'] = '3.3.1'
 default['cfncluster']['sge']['version'] = '8.1.9'
 default['cfncluster']['sge']['url'] = 'https://arc.liv.ac.uk/downloads/SGE/releases/8.1.9/sge-8.1.9.tar.gz'
 # Torque software
-default['cfncluster']['torque']['version'] = '6.0.2'
-default['cfncluster']['torque']['url'] = 'https://github.com/adaptivecomputing/torque/archive/6.0.2.tar.gz'
+default['cfncluster']['torque']['version'] = '6.1.3'
+default['cfncluster']['torque']['url'] = 'https://github.com/adaptivecomputing/torque/archive/6.1.3.tar.gz'
 # Slurm software
-default['cfncluster']['slurm']['version'] = '16-05-3-1'
-default['cfncluster']['slurm']['url'] = 'https://github.com/SchedMD/slurm/archive/slurm-16-05-3-1.tar.gz'
+default['cfncluster']['slurm']['version'] = '18-08-0-1'
+default['cfncluster']['slurm']['url'] = 'https://github.com/SchedMD/slurm/archive/slurm-18-08-0-1.tar.gz'
 # Munge
 default['cfncluster']['munge']['munge_version'] = '0.5.12'
 default['cfncluster']['munge']['munge_url'] = 'https://github.com/dun/munge/archive/munge-0.5.12.tar.gz'
@@ -42,7 +42,7 @@ default['cfncluster']['ganglia']['web_version'] = '3.7.2'
 default['cfncluster']['ganglia']['web_url'] = 'https://github.com/ganglia/ganglia-web/archive/3.7.2.tar.gz'
 # NVIDIA
 default['cfncluster']['nvidia']['enabled'] = 'no'
-default['cfncluster']['nvidia']['driver_url'] = 'http://download.nvidia.com/XFree86/Linux-x86_64/390.48/NVIDIA-Linux-x86_64-390.48.run'
+default['cfncluster']['nvidia']['driver_url'] = 'http://download.nvidia.com/XFree86/Linux-x86_64/390.87/NVIDIA-Linux-x86_64-390.87.run'
 default['cfncluster']['nvidia']['cuda_url'] = 'https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run'
 
 # Reboot after default_pre recipe
@@ -106,7 +106,12 @@ when 'debian'
                                               tcl-dev automake autoconf python-parted libtool librrd-dev libapr1-dev libconfuse-dev
                                               apache2 libboost-dev libdb-dev tcsh libssl-dev libncurses5-dev libpam0g-dev libxt-dev
                                               libmotif-dev libxmu-dev libxft-dev libhwloc-dev man-db lvm2 libmpich-dev libopenmpi-dev
-                                              r-base libatlas-dev libblas-dev libfftw3-dev libffi-dev libssl-dev libxml2-dev]
+                                              r-base libblas-dev libfftw3-dev libffi-dev libssl-dev libxml2-dev]
+  if Chef::VersionConstraint.new('< 18.04').include?(node['platform_version'])
+    default['cfncluster']['base_packages'] << "libatlas-dev"
+  else
+    default['cfncluster']['base_packages'] << "libgcrypt20-dev" << "libglvnd-dev" << "libatlas-base-dev"
+  end
   if Chef::VersionConstraint.new('< 16.04').include?(node['platform_version'])
     default['cfncluster']['kernel_devel_pkg']['name'] = "linux-image-extra"
     default['cfncluster']['kernel_devel_pkg']['version'] = node['kernel']['release']
