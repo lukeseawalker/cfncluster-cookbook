@@ -14,6 +14,7 @@ version '2.5.1'
 supports 'amazon'
 supports 'centos', '= 6'
 supports 'centos', '= 7'
+supports 'rhel', '= 7'
 supports 'ubuntu', '= 16.04'
 supports 'ubuntu', '= 18.04'
 

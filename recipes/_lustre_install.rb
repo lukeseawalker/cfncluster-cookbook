@@ -91,7 +91,7 @@ elsif node['platform_family'] == 'rhel' && node['platform_version'].split('.')[1
 
   kernel_module 'lnet'
 elsif node['platform_family'] == 'rhel'
-  Chef::Log.warn("Unsupported version of RHEL/Centos, #{node['platform_version']}, supported versions are 7.5, 7.6 and 7.7")
+  Chef::Log.warn("Unsupported version of RHEL/CentOS, #{node['platform_version']}, supported versions are 7.5, 7.6 and 7.7")
 elsif node['platform'] == 'amazon'
 
   # Install lustre client module
