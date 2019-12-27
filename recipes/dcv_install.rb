@@ -67,7 +67,7 @@ cookbook_file "#{node['cfncluster']['scripts_dir']}/pcluster_dcv_connect.sh" do
 end
 
 
-if node['platform'] == 'centos' && node['platform_version'].to_i == 7 && !File.exist?("/etc/dcv/dcv.conf")
+if node['platform_family'] == 'rhel' && node['platform_version'].to_i == 7 && !File.exist?("/etc/dcv/dcv.conf")
   case node['cfncluster']['cfn_node_type']
   when 'MasterServer', nil
     dcv_tarball = "#{node['cfncluster']['sources_dir']}/dcv-#{node['cfncluster']['dcv']['version']}.tgz"

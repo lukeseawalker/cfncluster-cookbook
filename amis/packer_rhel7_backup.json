@@ -26,27 +26,19 @@
   },
   "builders" : [
     {
-      "name" : "centos7",
+      "name" : "rhel7",
       "type" : "amazon-ebs",
       "region" : "{{user `region`}}",
-      "source_ami_filter": {
-        "filters": {
-          "virtualization-type": "hvm",
-          "name": "CentOS Linux 7 x86_64 HVM EBS ENA *",
-          "root-device-type": "ebs"
-        },
-        "owners": ["410186602215"],
-        "most_recent": true
-      },
+      "source_ami": "{{user `custom_ami_id`}}",
       "ami_regions" : "{{user `build_for`}}",
       "ami_groups" : "{{user `ami_perms`}}",
       "instance_type" : "{{user `instance_type`}}",
-      "ssh_username" : "centos",
+      "ssh_username" : "ec2-user",
       "ssh_pty" : true,
-      "ami_name" : "{{user `ami_name_prefix` | clean_ami_name}}aws-parallelcluster-{{user `parallelcluster_version`}}-centos7-hvm-{{user `build_date`}}",
+      "ami_name" : "{{user `ami_name_prefix` | clean_resource_name}}aws-parallelcluster-{{user `parallelcluster_version`}}-rhel7-hvm-{{user `build_date`}}",
       "subnet_id" : "{{user `subnet_id`}}",
-      "security_group_id" : "{{user `security_group_id`}}",
       "vpc_id" : "{{user `vpc_id`}}",
+      "security_group_id" : "{{user `security_group_id`}}",
       "skip_region_validation" : true,
       "associate_public_ip_address" : "{{user `associate_public_ip`}}",
       "sriov_support" : true,
@@ -69,7 +61,7 @@
       "launch_block_device_mappings" : [
         {
           "device_name" : "/dev/sda1",
-          "volume_size" : "25",
+          "volume_size" : "30",
           "volume_type" : "gp2",
           "delete_on_termination" : true
         },
@@ -94,16 +86,16 @@
       ]
     },
     {
-      "name" : "custom-centos7",
+      "name" : "custom-rhel7",
       "type" : "amazon-ebs",
       "region" : "{{user `region`}}",
       "source_ami": "{{user `custom_ami_id`}}",
       "ami_regions" : "{{user `build_for`}}",
       "ami_groups" : "{{user `ami_perms`}}",
       "instance_type" : "{{user `instance_type`}}",
-      "ssh_username" : "centos",
+      "ssh_username" : "ec2-user",
       "ssh_pty" : true,
-      "ami_name" : "{{user `ami_name_prefix` | clean_ami_name}}aws-parallelcluster-{{user `parallelcluster_version`}}-centos7-hvm-{{user `build_date`}}",
+      "ami_name" : "{{user `ami_name_prefix` | clean_resource_name}}aws-parallelcluster-{{user `parallelcluster_version`}}-rhel7-hvm-{{user `build_date`}}",
       "subnet_id" : "{{user `subnet_id`}}",
       "vpc_id" : "{{user `vpc_id`}}",
       "skip_region_validation" : true,
@@ -151,22 +143,16 @@
     {
       "type" : "shell",
       "inline" : [
-        "sudo yum -y install epel-release",
-        "sudo /bin/sed -r -i -e 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config"
-      ]
-    },
-    {
-      "type" : "shell",
-      "only": ["centos7"],
-      "inline" : [
-        "sudo /bin/sed -r -i -e 's/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\\1 rd.driver.blacklist=nouveau nouveau.modeset=0\"/' /etc/default/grub",
-        "sudo grub2-mkconfig -o /boot/grub2/grub.cfg"
-      ]
-    },
-    {
-      "type" : "shell",
-      "inline" : [
         "sudo yum -y groupinstall development && sudo yum -y install curl wget jq"
+      ]
+    },
+    {
+      "type" : "shell",
+      "inline" : [
+        "cd /tmp",
+        "wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+        "sudo yum -y install epel-release-latest-7.noarch.rpm",
+        "sudo /bin/sed -r -i -e 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config"
       ]
     },
     {
@@ -200,7 +186,7 @@
     },
     {
       "type" : "chef-solo",
-      "only": ["centos7"],
+      "only": ["rhel7"],
       "remote_cookbook_paths" : [
         "/etc/chef/cookbooks"
       ],
@@ -217,7 +203,7 @@
     },
     {
       "type" : "shell",
-      "only": ["centos7"],
+      "only": ["rhel7"],
       "expect_disconnect" : "true",
       "inline" : [
         "sudo reboot"
@@ -225,7 +211,7 @@
     },
     {
       "type" : "chef-solo",
-      "only": ["centos7"],
+      "only": ["rhel7"],
       "pause_before": "2m",
       "json" : {
         "cfncluster" : {
@@ -250,7 +236,7 @@
     },
     {
       "type" : "chef-solo",
-      "only": ["custom-centos7"],
+      "only": ["custom-rhel7"],
       "remote_cookbook_paths" : [
         "/etc/chef/cookbooks"
       ],
@@ -268,7 +254,7 @@
         "[[ ${region} =~ ^cn- ]] && bucket=\"s3.cn-north-1.amazonaws.com.cn/cn-north-1-aws-parallelcluster\"",
         "curl --retry 3 -L -o /tmp/aws-cfn-bootstrap-latest.tar.gz https://${bucket}/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz",
         "which pip2",
-        "if [ $? -eq 0 ]; then sudo pip2 install /tmp/aws-cfn-bootstrap-latest.tar.gz; else sudo pip install /tmp/aws-cfn-bootstrap-latest.tar.gz; fi"
+        "if [ $? -eq 0 ]; then sudo pip2 install /tmp/aws-cfn-bootstrap-latest.tar.gz; else sudo easy_install /tmp/aws-cfn-bootstrap-latest.tar.gz; fi"
       ]
     },
     {

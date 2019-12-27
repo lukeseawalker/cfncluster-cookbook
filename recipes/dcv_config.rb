@@ -58,7 +58,7 @@ def allow_gpu_acceleration
   end
 end
 
-if node['platform'] == 'centos' && node['platform_version'].to_i == 7 && node['cfncluster']['cfn_node_type'] == "MasterServer"
+if node['platform_family'] == 'rhel' && node['platform_version'].to_i == 7 && node['cfncluster']['cfn_node_type'] == "MasterServer"
 
   # be sure to have DCV packages installed
   include_recipe "aws-parallelcluster::dcv_install"

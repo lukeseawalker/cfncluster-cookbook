@@ -120,7 +120,7 @@ if node['cfncluster']['cfn_scheduler'] == 'slurm'
   end
 end
 
-if node['cfncluster']['cfn_node_type'] == "MasterServer" and node['cfncluster']['os'] == 'centos7' and node['cfncluster']['dcv']['installed'] == 'yes'
+if node['cfncluster']['cfn_node_type'] == "MasterServer" and (node['cfncluster']['os'] == 'centos7' or node['cfncluster']['os'] == 'rhel7') and node['cfncluster']['dcv']['installed'] == 'yes'
   execute 'check dcv installed' do
     command 'dcv version'
     user node['cfncluster']['cfn_cluster_user']
@@ -130,7 +130,7 @@ end
 
 unless node['cfncluster']['cfn_region'].start_with?("cn-")
   case node['cfncluster']['os']
-  when 'alinux', 'centos7'
+  when 'alinux', 'centos7', 'rhel7'
     execute 'check efa rpm installed' do
       command "rpm -qa | grep libfabric && rpm -qa | grep efa-"
       user node['cfncluster']['cfn_cluster_user']
