@@ -41,6 +41,9 @@ when 'amazon'
 when 'centos'
   package_url = "#{package_url_prefix}/#{node['platform']}/amd64/latest/amazon-cloudwatch-agent.rpm"
   package_path = "#{node['cfncluster']['sources_dir']}/amazon-cloudwatch-agent.rpm"
+when 'redhat'
+  package_url = "#{package_url_prefix}/#{node['platform']}/amd64/latest/amazon-cloudwatch-agent.rpm"
+  package_path = "#{node['cfncluster']['sources_dir']}/amazon-cloudwatch-agent.rpm"
 end
 signature_url = "#{package_url}.sig"
 signature_path = "#{package_path}.sig"
@@ -91,6 +94,6 @@ when 'ubuntu'
   dpkg_package package_path do
     source package_path
   end
-when 'amazon', 'centos'
+when 'amazon', 'centos', 'redhat'
   package package_path
 end

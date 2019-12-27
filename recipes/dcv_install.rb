@@ -18,8 +18,8 @@
 # Utility function to install a list of packages
 def install_package_list(packages)
   packages.each do |package_name|
-    case node['platform']
-    when 'centos', 'amazon'
+    case node['platform_family']
+    when 'rhel', 'amazon'
       package package_name do
         action :install
         source package_name
@@ -74,8 +74,8 @@ if node['cfncluster']['dcv']['supported_os'].include?("#{node['platform']}#{node
     dcv_tarball = "#{node['cfncluster']['sources_dir']}/dcv-#{node['cfncluster']['dcv']['version']}.tgz"
 
     # Install DCV pre-requisite packages
-    case node['platform']
-    when 'centos'
+    case node['platform_family']
+    when 'rhel'
       # Install the desktop environment and the desktop manager packages
       execute 'Install gnome desktop' do
         command 'yum -y install @gnome'
@@ -175,8 +175,8 @@ if node['cfncluster']['dcv']['supported_os'].include?("#{node['platform']}#{node
   end
 
   # Post-installation action
-  case node['platform']
-  when 'centos'
+  case node['platform_family']
+  when 'rhel'
     # stop firewall
     service "firewalld" do
       action %i[disable stop]

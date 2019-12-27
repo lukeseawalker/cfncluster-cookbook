@@ -20,10 +20,10 @@
 
 # Configure the system to enable NICE DCV to have direct access to the Linux server's GPU and enable GPU sharing.
 def allow_gpu_acceleration
-  # On CentOS 7 fix circular dependency multi-user.target -> cloud-init-> isolate multi-user.target.
+  # On CentOS 7/RHEL 7 fix circular dependency multi-user.target -> cloud-init-> isolate multi-user.target.
   # multi-user.target doesn't start until cloud-init run is finished. So isolate multi-user.target
   # is stuck into starting, which keep hanging chef until the 3600s timeout.
-  unless node['platform'] == 'centos' && node['platform_version'].to_i == 7
+  unless node['platform_version'] == 'rhel' && node['platform_version'].to_i == 7
     # Turn off X
     execute "Turn off X" do
       command "systemctl isolate multi-user.target"
@@ -44,8 +44,8 @@ def allow_gpu_acceleration
   # dcvgl package must be installed after NVIDIA and before starting up X
   # DO NOT install dcv-gl on non-GPU instances, or will run into a black screen issue
   dcv_gl = "#{node['cfncluster']['sources_dir']}/#{node['cfncluster']['dcv']['package']}/#{node['cfncluster']['dcv']['gl']}"
-  case node['platform']
-  when 'centos', 'amazon'
+  case node['platform_family']
+  when 'rhel', 'amazon'
     package dcv_gl do
       action :install
       source dcv_gl

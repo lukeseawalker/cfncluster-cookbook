@@ -80,9 +80,9 @@ default['cfncluster']['env2']['url'] = 'https://sourceforge.net/projects/env2/fi
 # NICE DCV
 default['cfncluster']['dcv']['installed'] = 'yes'
 default['cfncluster']['dcv']['version'] = '2019.1-7644'
-default['cfncluster']['dcv']['supported_os'] = %w[centos7 ubuntu18 amazon2]
+default['cfncluster']['dcv']['supported_os'] = %w[centos7 rhel7 ubuntu18 amazon2]
 case "#{node['platform']}#{node['platform_version'].to_i}"
-when 'centos7', 'amazon2'
+when 'centos7', 'amazon2', 'rhel7'
   default['cfncluster']['dcv']['package'] = "nice-dcv-#{node['cfncluster']['dcv']['version']}-el7"
   default['cfncluster']['dcv']['server'] = "nice-dcv-server-2019.1.7644-1.el7.x86_64.rpm" # NICE DCV server package
   default['cfncluster']['dcv']['xdcv'] = "nice-xdcv-2019.1.226-1.el7.x86_64.rpm" # required to create virtual sessions
@@ -188,7 +188,16 @@ when 'rhel', 'amazon'
     end
     default['cfncluster']['kernel_devel_pkg']['name'] = "kernel-lt-devel" if node['platform'] == 'centos' && node['platform_version'].to_i >= 6 && node['platform_version'].to_i < 7
     default['cfncluster']['rhel']['extra_repo'] = 'rhui-REGION-rhel-server-releases-optional' if node['platform'] == 'redhat' && node['platform_version'].to_i >= 6 && node['platform_version'].to_i < 7
-    default['cfncluster']['rhel']['extra_repo'] = 'rhui-REGION-rhel-server-optional' if node['platform'] == 'redhat' && node['platform_version'].to_i >= 7
+    default['cfncluster']['rhel']['extra_repo'] = 'rhui-REGION-rhel-server-optional rhui-REGION-rhel-server-extras' if node['platform'] == 'redhat' && node['platform_version'].to_i >= 7
+    # rhui-REGION-rhel-server-extras rhui-REGION-rhel-server-optional
+    if node['platform'] == 'redhat'
+      default['cfncluster']['base_packages'] = %w[vim ksh tcsh zsh openssl-devel ncurses-devel pam-devel net-tools openmotif-devel
+                                                  libXmu-devel libdb-devel tcl-devel automake autoconf pyparted libtool
+                                                  httpd boost-devel redhat-lsb mlocate lvm2 mpich-devel
+                                                  fftw-devel libffi-devel openssl-devel mariadb-devel
+                                                  libical-devel postgresql-devel postgresql-server sendmail libxml2-devel libglvnd-devel mdadm python
+                                                  libgcrypt-devel]
+    end
 
   when 'amazon'
     default['cfncluster']['base_packages'] = %w[vim ksh tcsh zsh openssl-devel ncurses-devel pam-devel net-tools openmotif-devel

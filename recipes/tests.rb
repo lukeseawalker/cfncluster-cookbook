@@ -243,7 +243,7 @@ end
 # EFA - Intel MPI
 ###################
 case node['cfncluster']['os']
-when 'alinux', 'centos7', 'alinux2'
+when 'alinux', 'alinux2', 'centos7', 'rhel7'
   execute 'check efa rpm installed' do
     command "rpm -qa | grep libfabric && rpm -qa | grep efa-"
     user node['cfncluster']['cfn_cluster_user']
@@ -380,7 +380,7 @@ end
 # Intel Python
 ###################
 # Intel Python Libraries
-if (node['platform'] == 'centos' && node['platform_version'].to_i >= 7) \
+if (node['platform_family'] == 'rhel' && node['platform_version'].to_i >= 7) \
   && (node['cfncluster']['enable_intel_hpc_platform'] == 'true')
   execute "check-intel-python2" do
     # Output code will be 1 if version is different
@@ -396,7 +396,7 @@ end
 # FSx Lustre
 ###################
 case node['cfncluster']['os']
-when 'alinux', 'centos7'
+when 'alinux', 'centos7', 'rhel7'
   execute 'check for lustre libraries' do
     command "rpm -qa | grep lustre-client"
     user node['cfncluster']['cfn_cluster_user']
