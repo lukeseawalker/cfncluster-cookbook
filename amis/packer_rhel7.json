@@ -243,6 +243,17 @@
     {
       "type" : "chef-solo",
       "only": ["custom-rhel7"],
+      "json" : {
+        "cfncluster" : {
+          "cfn_region": "{{user `region`}}",
+          "nvidia" : {
+            "enabled" : "{{user `nvidia_enabled`}}"
+          },
+          "dcv": {
+            "installed" : "{{user `dcv_installed`}}"
+          }
+        }
+      },
       "remote_cookbook_paths" : [
         "/etc/chef/cookbooks"
       ],
