@@ -34,9 +34,9 @@ if node['cfncluster']['nvidia']['enabled'] == 'yes'
     group 'root'
     cwd '/tmp'
     code <<-NVIDIA
-    set -e
-    ./nvidia.run --silent --dkms
-    rm -f /tmp/nvidia.run
+      set -e
+      ./nvidia.run --silent --dkms
+      rm -f /tmp/nvidia.run
     NVIDIA
     creates '/usr/bin/nvidia-smi'
   end
