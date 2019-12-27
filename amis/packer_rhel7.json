@@ -29,7 +29,15 @@
       "name" : "rhel7",
       "type" : "amazon-ebs",
       "region" : "{{user `region`}}",
-      "source_ami": "{{user `custom_ami_id`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "RHEL-7.*_HVM*x86_64*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["309956199498"],
+        "most_recent": true
+      },
       "ami_regions" : "{{user `build_for`}}",
       "ami_groups" : "{{user `ami_perms`}}",
       "instance_type" : "{{user `instance_type`}}",
@@ -143,7 +151,8 @@
     {
       "type" : "shell",
       "inline" : [
-        "sudo /bin/sed -r -i -e 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config"
+        "sudo /bin/sed -r -i -e 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config",
+        "sudo rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
       ]
     },
     {

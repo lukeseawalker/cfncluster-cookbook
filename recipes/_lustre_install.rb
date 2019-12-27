@@ -15,8 +15,8 @@
 # OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Install only on Centos 7.6 and 7.5
-if node['platform'] == 'centos' && (5..6).cover?(node['platform_version'].split('.')[1].to_i)
+# Install only on RHEL/Centos 7.6 and 7.5
+if node['platform_family'] == 'rhel' && (5..6).cover?(node['platform_version'].split('.')[1].to_i)
   lustre_kmod_rpm = "#{node['cfncluster']['sources_dir']}/kmod-lustre-client-#{node['cfncluster']['lustre']['version']}.x86_64.rpm"
   lustre_client_rpm = "#{node['cfncluster']['sources_dir']}/lustre-client-#{node['cfncluster']['lustre']['version']}.x86_64.rpm"
 
@@ -49,7 +49,7 @@ if node['platform'] == 'centos' && (5..6).cover?(node['platform_version'].split(
   end
 
   kernel_module 'lnet'
-elsif node['platform'] == 'centos' && node['platform_version'].split('.')[1].to_i == 7
+elsif node['platform_family'] == 'rhel' && node['platform_version'].split('.')[1].to_i == 7
 
   # Install build dependencies
   package %w[libselinux-devel libyaml-devel rpm-build gcc git make] do
@@ -90,8 +90,8 @@ elsif node['platform'] == 'centos' && node['platform_version'].split('.')[1].to_
   end
 
   kernel_module 'lnet'
-elsif node['platform'] == 'centos'
-  Chef::Log.warn("Unsupported version of Centos, #{node['platform_version']}, supported versions are 7.5, 7.6 and 7.7")
+elsif node['platform_family'] == 'rhel'
+  Chef::Log.warn("Unsupported version of RHEL/Centos, #{node['platform_version']}, supported versions are 7.5, 7.6 and 7.7")
 elsif node['platform'] == 'amazon'
 
   # Install lustre client module

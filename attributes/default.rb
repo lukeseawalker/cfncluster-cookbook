@@ -158,16 +158,23 @@ when 'rhel', 'amazon'
       end
     end
     default['cfncluster']['kernel_devel_pkg']['name'] = "kernel-lt-devel" if node['platform'] == 'centos' && node['platform_version'].to_i >= 6 && node['platform_version'].to_i < 7
-    default['cfncluster']['rhel']['extra_repo'] = 'rhui-REGION-rhel-server-releases-optional' if node['platform'] == 'redhat' && node['platform_version'].to_i >= 6 && node['platform_version'].to_i < 7
-    default['cfncluster']['rhel']['extra_repo'] = 'rhui-REGION-rhel-server-optional rhui-REGION-rhel-server-extras' if node['platform'] == 'redhat' && node['platform_version'].to_i >= 7
-    # rhui-REGION-rhel-server-extras rhui-REGION-rhel-server-optional
+
     if node['platform'] == 'redhat'
+      # default['cfncluster']['rhel']['extra_repo'] = 'rhui-REGION-rhel-server-releases-optional' if node['platform'] == 'redhat' && node['platform_version'].to_i >= 6 && node['platform_version'].to_i < 7
+
+      # default['cfncluster']['rhel']['extra_repo'] = 'rhui-REGION-rhel-server-optional rhui-REGION-rhel-server-extras rhel-7-server-rhui-optional-rpms rhel-7-server-rhui-extras-rpms rhui-rhel-7-server-rhui-optional-rpms rhui-rhel-7-server-rhui-extras-rpms'
+      if node['platform_version'].split('.')[1].to_i == 6
+        default['cfncluster']['rhel']['extra_repo'] = 'rhui-REGION-rhel-server-optional rhui-REGION-rhel-server-extras'
+      elsif node['platform_version'].split('.')[1].to_i == 7
+        default['cfncluster']['rhel']['extra_repo'] = 'rhel-7-server-rhui-optional-rpms rhel-7-server-rhui-extras-rpms rhui-rhel-7-server-rhui-optional-rpms rhui-rhel-7-server-rhui-extras-rpms'
+      end
+
       default['cfncluster']['base_packages'] = %w[vim ksh tcsh zsh openssl-devel ncurses-devel pam-devel net-tools openmotif-devel
-                                                  libXmu-devel libdb-devel tcl-devel automake autoconf pyparted libtool
-                                                  httpd boost-devel redhat-lsb mlocate lvm2 mpich-devel
-                                                  fftw-devel libffi-devel openssl-devel mariadb-devel
+                                                  libXmu-devel hwloc-devel libdb-devel tcl-devel automake autoconf pyparted libtool
+                                                  httpd boost-devel redhat-lsb mlocate lvm2 mpich-devel R atlas-devel
+                                                  blas-devel fftw-devel libffi-devel openssl-devel dkms mariadb-devel libedit-devel
                                                   libical-devel postgresql-devel postgresql-server sendmail libxml2-devel libglvnd-devel mdadm python
-                                                  libgcrypt-devel]
+                                                  libssh2-devel libgcrypt-devel]
     end
 
   when 'amazon'

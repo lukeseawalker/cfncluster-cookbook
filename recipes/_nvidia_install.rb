@@ -48,32 +48,17 @@ if node['cfncluster']['nvidia']['enabled'] == 'yes'
     not_if { ::File.exist?('/usr/bin/nvidia-smi') }
   end
 
-  if node['platform'] == 'redhat'
-    # Install NVIDIA driver
-    bash 'nvidia.run advanced' do
-      user 'root'
-      group 'root'
-      cwd '/tmp'
-      code <<-NVIDIA
-      set -e
-      ./nvidia.run --silent
-      rm -f /tmp/nvidia.run
-      NVIDIA
-      creates '/usr/bin/nvidia-smi'
-    end
-  else
-    # Install NVIDIA driver
-    bash 'nvidia.run advanced' do
-      user 'root'
-      group 'root'
-      cwd '/tmp'
-      code <<-NVIDIA
-      set -e
-      ./nvidia.run --silent --dkms
-      rm -f /tmp/nvidia.run
-      NVIDIA
-      creates '/usr/bin/nvidia-smi'
-    end
+  # Install NVIDIA driver
+  bash 'nvidia.run advanced' do
+    user 'root'
+    group 'root'
+    cwd '/tmp'
+    code <<-NVIDIA
+    set -e
+    ./nvidia.run --silent --dkms
+    rm -f /tmp/nvidia.run
+    NVIDIA
+    creates '/usr/bin/nvidia-smi'
   end
 
   # Get CUDA run file
