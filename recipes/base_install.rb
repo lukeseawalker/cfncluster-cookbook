@@ -53,15 +53,28 @@ node['cfncluster']['base_packages'].each do |p|
   end
 end
 
-bash "install awscli" do
-  cwd Chef::Config[:file_cache_path]
-  code <<-CLI
-    set -e
-    curl --retry 5 --retry-delay 5 "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-    unzip awscli-bundle.zip
-    ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
-  CLI
-  not_if { ::File.exist?("/usr/local/bin/aws") }
+if node['platform'] == 'centos' && node['platform_version'].to_i < 7
+  bash "install awscli 1.16.188" do
+    cwd Chef::Config[:file_cache_path]
+    code <<-CLI
+      set -e
+      curl --retry 5 --retry-delay 5 "https://s3.amazonaws.com/aws-cli/awscli-bundle-1.16.188.zip" -o "awscli-bundle.zip"
+      unzip awscli-bundle.zip
+      ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+    CLI
+    not_if { ::File.exist?("/usr/local/bin/aws") }
+  end
+else
+  bash "install awscli" do
+    cwd Chef::Config[:file_cache_path]
+    code <<-CLI
+      set -e
+      curl --retry 5 --retry-delay 5 "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+      unzip awscli-bundle.zip
+      ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+    CLI
+    not_if { ::File.exist?("/usr/local/bin/aws") }
+  end
 end
 
 # Manage SSH via Chef
