@@ -121,12 +121,17 @@
       "iam_instance_profile" : "{{user `iam_instance_profile`}}",
       "tags" : {
         "parallelcluster_version" : "aws-parallelcluster-{{user `parallelcluster_version`}}",
-        "build_date" : "{{user `build_date`}}"
+        "build_date" : "{{user `build_date`}}",
+        "parallelcluster_ref" : "{{user `parallelcluster_ref`}}",
+        "parallelcluster_cookbook_ref" : "{{user `parallelcluster_cookbook_ref`}}",
+        "parallelcluster_node_ref" : "{{user `parallelcluster_node_ref`}}"
       },
       "run_tags" : {
-        "Name": "Packer Builder {{user `custom_ami_id`}}",
         "parallelcluster_version" : "aws-parallelcluster-{{user `parallelcluster_version`}}",
-        "build_date" : "{{user `build_date`}}"
+        "build_date" : "{{user `build_date`}}",
+        "parallelcluster_ref" : "{{user `parallelcluster_ref`}}",
+        "parallelcluster_cookbook_ref" : "{{user `parallelcluster_cookbook_ref`}}",
+        "parallelcluster_node_ref" : "{{user `parallelcluster_node_ref`}}"
       },
       "launch_block_device_mappings" : [
         {
@@ -156,6 +161,12 @@
     }
   ],
   "provisioners" : [
+    {
+      "type" : "shell",
+      "inline" : [
+        "sudo rm -rf /opt/parallelcluster/.bootstrapped"
+      ]
+    },
     {
       "type": "shell",
       "inline": [
@@ -265,6 +276,12 @@
     {
       "type" : "chef-solo",
       "only": ["custom-ubuntu1804"],
+      "json" : {
+        "cfncluster" : {
+          "cfn_region": "{{user `region`}}",
+          "custom_node_package" : "{{user `custom_node_package`}}"
+        }
+      },
       "remote_cookbook_paths" : [
         "/etc/chef/cookbooks"
       ],
