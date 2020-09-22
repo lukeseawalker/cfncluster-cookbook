@@ -88,10 +88,10 @@ elsif node['platform'] == 'ubuntu'
     retry_delay 5
   end
 
-  apt_package "lustre-client-modules-aws" do
-    retries 3
-    retry_delay 5
-  end
+  # apt_package "lustre-client-modules-aws" do
+  #   retries 3
+  #   retry_delay 5
+  # end
 
   kernel_module 'lnet'
 elsif node['platform'] == 'amazon' && node['platform_version'].to_i == 2

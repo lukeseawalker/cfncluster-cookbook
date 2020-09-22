@@ -175,10 +175,16 @@ cookbook_file '/etc/systemd/system/slurmctld.service' do
   group 'root'
   mode '0644'
   action :create
+  notifies :run, 'execute[systemd-daemon-reload]', :immediately
   only_if { node['init_package'] == 'systemd' }
 end
 
 if node['init_package'] == 'systemd'
+  execute 'systemd-daemon-reload' do
+    command "systemctl daemon-reload"
+    action :nothing
+  end
+
   service "slurmctld" do
     supports restart: false
     action %i[enable start]

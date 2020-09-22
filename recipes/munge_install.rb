@@ -51,8 +51,8 @@ bash 'make install' do
     make install
   MUNGE
   # TODO: Fix, so it works for upgrade
-  creates '/usr/bin/munge'
-  not_if "/usr/sbin/munged --version | grep -q munge-#{node['cfncluster']['munge']['munge_version']}"
+  # creates '/usr/bin/munge'
+  not_if "/usr/sbin/munged --version | grep -q munge-#{node['cfncluster']['munge']['munge_version']} && ls #{munge_libdir}/libmunge*"
 end
 
 # Updated munge init script for Amazon Linux
