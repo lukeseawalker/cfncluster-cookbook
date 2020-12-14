@@ -212,7 +212,7 @@ include_recipe "aws-parallelcluster::ganglia_install"
 include_recipe "aws-parallelcluster::nvidia_install"
 
 # Install FSx options
-include_recipe "aws-parallelcluster::lustre_install"
+# include_recipe "aws-parallelcluster::lustre_install"
 
 # Install EFA & Intel MPI
 include_recipe "aws-parallelcluster::efa_install"
