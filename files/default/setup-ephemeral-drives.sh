@@ -92,8 +92,7 @@ function setup_ephemeral_drives () {
       mount -v -t ext4 -o noatime,nodiratime /dev/mapper/ephemeral_luks ${cfn_ephemeral_dir} || RC=1
     else
       mkfs.ext4 /dev/vg.01/lv_ephemeral || RC=1
-      echo "/dev/vg.01/lv_ephemeral ${cfn_ephemeral_dir} ext4 noatime,nodiratime 0 0" >> /etc/fstab || RC=1
-      mount -v ${cfn_ephemeral_dir} || RC=1
+      mount -v -t ext4 -o noatime,nodiratime /dev/vg.01/lv_ephemeral ${cfn_ephemeral_dir} || RC=1
     fi
   fi
   chmod 1777 ${cfn_ephemeral_dir} || RC=1
