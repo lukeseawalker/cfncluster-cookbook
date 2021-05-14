@@ -58,6 +58,12 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 - Upgrade Python version used in ParallelCluster virtualenvs from version 3.6.13 to version 3.7.10.
 - Use compute resource name in node name (For example, ondemand1-dy-t2micro-5 is renamed to ondemand1-dy-{compute resource name}-5).
 
+2.10.4
+-----
+
+**CHANGES**
+- Upgrade Slurm to version 20.02.7
+
 2.10.3
 -----
 
