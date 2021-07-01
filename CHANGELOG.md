@@ -23,6 +23,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 - Make sudoers secure_path include the same directories in every platform.
 - Add support for iptables restore on instance reboot.
 - Support restart/reboot for instance with instance store (ephemeral drives)
+- Remove option for instance store software encryption (encrypted_ephemeral)
 
 
 2.x.x
